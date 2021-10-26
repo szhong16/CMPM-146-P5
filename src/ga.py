@@ -347,6 +347,28 @@ def generate_successors(population):
     results = []
     # STUDENT Design and implement this
     # Hint: Call generate_children() on some individuals and fill up results.
+
+    # Idea from https://www.tutorialspoint.com/genetic_algorithms/genetic_algorithms_parent_selection.htm
+    # Roulette Wheel Selection
+    # Calculate S = the sum of a finesses.
+    # Generate a random number between 0 and S.
+    # Starting from the top of the population, keep adding the finesses to the partial sum P, till P<S.
+    # The individual for which P exceeds S is the chosen individual.
+    # https://stackoverflow.com/questions/10324015/fitness-proportionate-selection-roulette-wheel-selection-in-python
+    s = 0
+    for fitness in population:
+        s += fitness._fitness
+    while len(results) < len(population):
+        random_num = random.randint(0, s)
+        P = 0
+        for num in population:
+            P += num._fitness
+            if P > random_num:
+                child = num.generate_children(P)
+                results.append(child)
+                break
+            break
+
     return results
 
 
