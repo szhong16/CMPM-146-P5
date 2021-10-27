@@ -80,15 +80,18 @@ class Individual_Grid(object):
         new_genome = copy.deepcopy(self.genome)
         # Leaving first and last columns alone...
         # do crossover with other
+        # Idea from https://blog.csdn.net/bible_reader/article/details/72782675?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522163534642016780271579448%2522%252C%2522scm%2522%253A%252220140713.130102334.pc%255Fall.%2522%257D&request_id=163534642016780271579448&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~first_rank_ecpm_v1~rank_v31_ecpm-2-72782675.first_rank_v2_pc_rank_v29&utm_term=crossover+python&spm=1018.2226.3001.4187
+        # https://www.geeksforgeeks.org/python-single-point-crossover-in-genetic-algorithm/
+        new_genome_2 = copy.deepcopy(self.genome)
         left = 1
         right = width - 1
         for y in range(height):
             for x in range(left, right):
                 # STUDENT Which one should you take?  Self, or other?  Why?
                 # STUDENT consider putting more constraints on this to prevent pipes in the air, etc
-                pass
+                # pass
         # do mutation; note we're returning a one-element tuple here
-        return (Individual_Grid(new_genome),)
+        return (Individual_Grid(new_genome), )
 
     # Turn the genome into a level string (easy for this genome)
     def to_level(self):
@@ -355,6 +358,7 @@ def generate_successors(population):
     # Starting from the top of the population, keep adding the finesses to the partial sum P, till P<S.
     # The individual for which P exceeds S is the chosen individual.
     # https://stackoverflow.com/questions/10324015/fitness-proportionate-selection-roulette-wheel-selection-in-python
+    best_of_RWS = []
     s = 0
     for fitness in population:
         s += fitness._fitness
@@ -368,7 +372,30 @@ def generate_successors(population):
             else:
                 P += parents._fitness
         child = the_parents.generate_children(P)
-        results.append(child[0])
+        best_of_RWS.append(child[0])
+
+    # Idea from https://www.geeksforgeeks.org/tournament-selection-ga/
+    # Tournament selection
+    # 1.Select k individuals from the population and perform a tournament amongst them
+    # 2.Select the best individual from the k individuals
+    # 3. Repeat process 1 and 2 until you have the desired amount of population
+    best_of_TS = []
+    population_for_TS = copy.deepcopy(population) # don't want to change the list
+    random.shuffle(population_for_TS)
+    for i in range(0, math.floor(len(population_for_TS) / 2)):
+        individual_1 = population_for_TS[i]
+        individual_2 = population_for_TS[i + 1]
+        if individual_1._fitness < individual_2._fitness:
+            best_of_TS.append(individual_2)
+        else:
+            best_of_TS.append(individual_1)
+
+    # Generate the best we got from both
+    for i in range(0, len(best_of_RWS)):
+        first_parent = best_of_RWS[i]
+        second_parent = best_of_TS[i]
+        results.append(first_parent.generate_children(second_parent)[0])
+        results.append(second_parent.generate_children(first_parent)[0])
 
     return results
 
