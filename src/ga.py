@@ -358,44 +358,22 @@ def generate_successors(population):
     # Starting from the top of the population, keep adding the finesses to the partial sum P, till P<S.
     # The individual for which P exceeds S is the chosen individual.
     # https://stackoverflow.com/questions/10324015/fitness-proportionate-selection-roulette-wheel-selection-in-python
-    best_of_RWS = []
+    RWS_parent = None
     s = 0
+    
     for fitness in population:
         s += fitness._fitness
+    
     random_num = random.uniform(0.0, s)
+    
     P = 0
-    while len(results) < len(population):
-        for parents in population:
-            if P > random_num:
-                the_parents = parents
-                break
-            else:
-                P += parents._fitness
-        child = the_parents.generate_children(P)
-        best_of_RWS.append(child[0])
 
-    # Idea from https://www.geeksforgeeks.org/tournament-selection-ga/
-    # Tournament selection
-    # 1.Select k individuals from the population and perform a tournament amongst them
-    # 2.Select the best individual from the k individuals
-    # 3. Repeat process 1 and 2 until you have the desired amount of population
-    best_of_TS = []
-    population_for_TS = copy.deepcopy(population) # don't want to change the list
-    random.shuffle(population_for_TS)
-    for i in range(0, math.floor(len(population_for_TS) / 2)):
-        individual_1 = population_for_TS[i]
-        individual_2 = population_for_TS[i + 1]
-        if individual_1._fitness < individual_2._fitness:
-            best_of_TS.append(individual_2)
+    for parents in population:
+        if P > random_num:
+            RWS_parent = parents
+            break
         else:
-            best_of_TS.append(individual_1)
-
-    # Generate the best we got from both
-    for i in range(0, len(best_of_RWS)):
-        first_parent = best_of_RWS[i]
-        second_parent = best_of_TS[i]
-        results.append(first_parent.generate_children(second_parent)[0])
-        results.append(second_parent.generate_children(first_parent)[0])
+            P += parents._fitness
 
 
     # Tournament Selection
@@ -403,42 +381,32 @@ def generate_successors(population):
     # sets the size to be length of population - 1
     # initializes chosen list of parents
     size = len(population) - 1
-    chosen = []
+    chosen = None
+    counter = 0
+    tournament = []
 
-    # finds the two best parents in a random selection to be our successors
-    while (len(chosen) != 2):
-        counter = 0
-        tournament = []
+    # we select 30 random genomes to be in our tournament
+    while counter < 30:
+        rand_genome = random.randint(0, size)
 
-        # we select 30 random genomes to be in our tournament
-        while counter < 30:
-            randint = random.randint(0, size)
+        # if the genome is not in the tournament, add it and increase the counter by 1
+        if population[rand_genome] not in tournament:
+            tournament.append(population[rand_genome])
+            counter += 1
 
-            # if the genome is not in the tournament, add it and increase the counter by 1
-            if population[randint] not in tournament:
-                tournament.append(population[randint])
-                counter += 1
-
-        # initialize best to none    
-        best = None
-
-        # compares all 30 genomes and finds the best one (based on highest fitness)
-        for parent in tournament:
-            
-            # set the first one as the best
-            if best == None:
-                best = parent
-            
-            # compares the current best to the current parent
-            if parent.fitness() > best.fitness():
-                best = parent
+    # compares all 30 genomes and finds the best one (based on highest fitness)
+    for parent in tournament:
         
-        # after the tournament, add the best to chosen (given that it is not already in there)
-        if best not in chosen:
-            chosen.append(best)
-
+        # set the first one as the best
+        if chosen == None:
+            chosen = parent
+        
+        # compares the current best to the current parent
+        elif parent.fitness() > chosen.fitness():
+            chosen = parent
+    
     # generates children from the two chosen genomes and adds them to results
-    results.append(chosen[0].generate_children(chosen[1]))
+    results.append(chosen.generate_children(RWS_parent))
 
     return results
 
