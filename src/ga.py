@@ -358,58 +358,17 @@ def generate_successors(population):
     s = 0
     for fitness in population:
         s += fitness._fitness
+    random_num = random.uniform(0.0, s)
+    P = 0
     while len(results) < len(population):
-        random_num = random.randint(0, s)
-        P = 0
-        for num in population:
-            P += num._fitness
+        for parents in population:
             if P > random_num:
-                child = num.generate_children(P)
-                results.append(child)
+                the_parents = parents
                 break
-            break
-
-    # Tournament Selection
-
-    # sets the size to be length of population - 1
-    # initializes chosen list of parents
-    size = len(population) - 1
-    chosen = []
-
-    # finds the two best parents in a random selection to be our successors
-    while (len(chosen) != 2):
-        counter = 0
-        tournament = []
-
-        # we select 30 random genomes to be in our tournament
-        while counter < 30:
-            randint = random.randint(0, size)
-
-            # if the genome is not in the tournament, add it and increase the counter by 1
-            if population[randint] not in tournament:
-                tournament.append(population[randint])
-                counter += 1
-
-        # initialize best to none    
-        best = None
-
-        # compares all 30 genomes and finds the best one (based on highest fitness)
-        for parent in tournament:
-            
-            # set the first one as the best
-            if best == None:
-                best = parent
-            
-            # compares the current best to the current parent
-            if parent.fitness() > best.fitness():
-                best = parent
-        
-        # after the tournament, add the best to chosen (given that it is not already in there)
-        if best not in chosen:
-            chosen.append(best)
-
-    # generates children from the two chosen genomes and adds them to results
-    results.append(chosen[0].generate_children(chosen[1]))
+            else:
+                P += parents._fitness
+        child = parents.generate_children(P)
+        results.append(child[0])
 
     return results
 
