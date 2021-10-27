@@ -367,7 +367,7 @@ def generate_successors(population):
                 break
             else:
                 P += parents._fitness
-        child = parents.generate_children(P)
+        child = the_parents.generate_children(P)
         results.append(child[0])
 
     return results
