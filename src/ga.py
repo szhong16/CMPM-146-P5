@@ -70,9 +70,11 @@ class Individual_Grid(object):
 
         left = 1
         right = width - 1
+        
         for y in range(height):
             for x in range(left, right):
                 pass
+        
         return genome
 
     # Create zero or more children from self and other
@@ -80,18 +82,30 @@ class Individual_Grid(object):
         new_genome = copy.deepcopy(self.genome)
         # Leaving first and last columns alone...
         # do crossover with other
-        # Idea from https://blog.csdn.net/bible_reader/article/details/72782675?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522163534642016780271579448%2522%252C%2522scm%2522%253A%252220140713.130102334.pc%255Fall.%2522%257D&request_id=163534642016780271579448&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~first_rank_ecpm_v1~rank_v31_ecpm-2-72782675.first_rank_v2_pc_rank_v29&utm_term=crossover+python&spm=1018.2226.3001.4187
-        # https://www.geeksforgeeks.org/python-single-point-crossover-in-genetic-algorithm/
-        new_genome_2 = copy.deepcopy(self.genome)
         left = 1
         right = width - 1
+
+        # split our level into 3 sections
+        section1 = random.randint(left, right/2)
+        section2 = random.randint(section1, (3*right/4))
+        section3 = random.randint(section2, right)
+        
         for y in range(height):
-            for x in range(left, right):
+            # section 1 to 2 and section 3 to right will be left the same
+
+            # sets the new genome to that of other in section left to 1
+            for x in range(left, section1):
                 # STUDENT Which one should you take?  Self, or other?  Why?
                 # STUDENT consider putting more constraints on this to prevent pipes in the air, etc
-                # pass
+                new_genome[y][x] = other.genome[y][x]
+
+            # sets the new genome to that of other in section 2 to 3
+            for x in range(section2, section3):
+                new_genome[y][x] = other.genome[y][x]
+        
         # do mutation; note we're returning a one-element tuple here
-        return (Individual_Grid(new_genome), )
+        new_genome = self.mutate(new_genome)
+        return (Individual_Grid(new_genome),)
 
     # Turn the genome into a level string (easy for this genome)
     def to_level(self):
@@ -390,7 +404,7 @@ def generate_successors(population):
         rand_genome = random.randint(0, size)
 
         # if the genome is not in the tournament, add it and increase the counter by 1
-        if population[rand_genome] not in tournament:
+        if population[rand_genome] not in tournament and population[rand_genome] != RWS_parent:
             tournament.append(population[rand_genome])
             counter += 1
 
