@@ -394,7 +394,7 @@ class Individual_DE(object):
         return Individual_DE(g)
 
 
-Individual = Individual_DE
+Individual = Individual_Grid
 
 
 def generate_successors(population):
@@ -427,27 +427,34 @@ def generate_successors(population):
     #     else:
     #         P += parents._fitness
 
+    # Elitist Selection
+    # https://en.wikipedia.org/wiki/Selection_(genetic_algorithm)
+    # http://www.wardsystems.com/manuals/genehunter/elitistselection.htm
     elitist_parents = []
 
+    # don't want to mess up the population
     check = copy.deepcopy(population)
 
-    sort_tophalf = sorted(check, key=lambda fitness:fitness._fitness, reverse=False)
+    # sort t and the bigger fitness in front
+    sort = sorted(check, key=lambda fitness:fitness.fitness(), reverse=True)
+    # if (sort_tophalf[0]._fitness < sort_tophalf[1]._fitness):
+    #     print("0 is < 1")
 
     if (len(check) % 2) == 0:
         for i in range(0, int(len(check) / 2)):
-            elitist_parents.append(sort_tophalf[i])
+            elitist_parents.append(sort[i])
     else: # if odd number, append one more
         for i in range(0, int(len(check) / 2)):
-            elitist_parents.append(sort_tophalf[i])
-        elitist_parents.append(sort_tophalf[math.floor(len(check) / 2)])
+            elitist_parents.append(sort[i])
+        elitist_parents.append(sort[math.floor(len(check) / 2)])
 
-    elitistP1 = elitist_parents[random.randint(0, len(elitist_parents)-1)]
-    elitistP2 = elitist_parents[random.randint(0, len(elitist_parents)-1)]
-    while elitistP1 == elitistP2:
-        elitistP2 = elitist_parents[random.randint(0, len(elitist_parents)-1)]
-    if len(elitistP1.genome) != 0 and len(elitistP2.genome) != 0:
-        results.append(elitistP1.generate_children(elitistP2)[0])
-        results.append(elitistP2.generate_children(elitistP1)[0])
+    # elitistP1 = elitist_parents[random.randint(0, len(elitist_parents)-1)]
+    # elitistP2 = elitist_parents[random.randint(0, len(elitist_parents)-1)]
+    # while elitistP1 == elitistP2:
+    #     elitistP2 = elitist_parents[random.randint(0, len(elitist_parents)-1)]
+    # if len(elitistP1.genome) != 0 and len(elitistP2.genome) != 0:
+    #     results.append(elitistP1.generate_children(elitistP2))
+    #     results.append(elitistP2.generate_children(elitistP1))
 
     # Tournament Selection
 
@@ -461,7 +468,7 @@ def generate_successors(population):
         tournament_2 = random.choice(population)
         while tournament_1 == tournament_2:
             tournament_2 = random.choice(population)
-        if tournament_1._fitness > tournament_2._fitness:
+        if tournament_1.fitness() > tournament_2.fitness():
             tournament_parents.append(tournament_1)
         else:
             tournament_parents.append(tournament_2)
@@ -496,15 +503,20 @@ def generate_successors(population):
     #     if chosen not in tournament_parents:
     #         tournament_parents.append(chosen)
     #
-    if len(tournament_parents[0].genome) != 0 and len(tournament_parents[1].genome) != 0:
-        results.append(tournament_parents[0].generate_children(tournament_parents[1])[0])
-        results.append(tournament_parents[1].generate_children(tournament_parents[0])[0])
+    # if len(tournament_parents[0].genome) != 0 and len(tournament_parents[1].genome) != 0:
+    #     results.append(tournament_parents[0].generate_children(tournament_parents[1]))
+    #     results.append(tournament_parents[1].generate_children(tournament_parents[0]))
 
-    # for i in range(0, len(tournament_parents)):
-    #     first = tournament_parents[i]
-    #     second = elitist_parents[i]
-    #     results.append(first.generate_children(second))
-    #     results.append(second.generate_children(first))
+    if len(tournament_parents) < len(elitist_parents):
+        size = len(tournament_parents)
+    else:
+        size = len(elitist_parents)
+
+    for i in range(0, size):
+        first = tournament_parents[i]
+        second = elitist_parents[i]
+        results.append(first.generate_children(second))
+        results.append(second.generate_children(first))
 
     # results.append(chosen.generate_children(RWS_parent)[0])
 
