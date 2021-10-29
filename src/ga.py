@@ -68,13 +68,17 @@ class Individual_Grid(object):
         # STUDENT also consider weighting the different tile types so it's not uniformly random
         # STUDENT consider putting more constraints on this to prevent pipes in the air, etc
 
+        # https://www.tutorialspoint.com/genetic_algorithms/genetic_algorithms_mutation.htm
+
         new_genome = copy.deepcopy(self.genome)
 
         left = 1
         right = width - 1
         for y in range(height):
             for x in range(left, right):
-                if random.randint(1, 100) < 33 and y > 1:
+                if x >= width - 5:
+                    pass
+                elif random.randint(1, 100) < 33 and y > 1:
                     # Wall
                     if new_genome[y][x] == 'X':
                         # Change if floating wall
@@ -109,6 +113,9 @@ class Individual_Grid(object):
 
     # Create zero or more children from self and other
     def generate_children(self, other):
+
+        # https://www.tutorialspoint.com/genetic_algorithms/genetic_algorithms_crossover.htm
+
         new_genome = copy.deepcopy(self.genome)
         new_genome_2 = copy.deepcopy(self.genome)
         # Leaving first and last columns alone...
