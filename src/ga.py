@@ -73,7 +73,37 @@ class Individual_Grid(object):
         
         for y in range(height):
             for x in range(left, right):
+                if random.randint(1, 100) < 33 and y > 1:
+                    # Wall
+                    if new_genome[y][x] == 'X':
+                        # Change if floating wall
+                        if new_genome[y-1][x] != 'X':
+                            if random.randint(1, 10) <= 4:
+                                genome[y][x] = 'B'
+                            else:
+                                genome[y][x] = '-'
+
+                    #Pipe or top
+                    elif new_genome[y][x] == '|' or new_genome[y][x] == 'T':
+                        # Replace if floating
+                        if new_genome[y-1][x] != '|' and y != height and (new_genome[y+1][x] != '|' or new_genome[y+1][x] != 'T'):
+                            if random.randint(1, 10) <= 2:
+                                genome[y][x] = 'M'
+                            else:
+                                genome[y][x] = '?'
+
+                    elif new_genome[y][x] == '-':
+                        if random.randint(1, 10) <= 3:
+                            genome[y][x] = '?'
+                        if random.randint(1, 10) >= 6:
+                            genome[y][x] = 'o'
+
+                    else:
+                        genome[y][x] = new_genome[y][x]
+                else:
+                    genome[y][x] = new_genome[y][x]
                 pass
+        return genome
         
         return genome
 
