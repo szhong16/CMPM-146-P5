@@ -68,6 +68,8 @@ class Individual_Grid(object):
         # STUDENT also consider weighting the different tile types so it's not uniformly random
         # STUDENT consider putting more constraints on this to prevent pipes in the air, etc
 
+        new_genome = copy.deepcopy(self.genome)
+
         left = 1
         right = width - 1
         for y in range(height):
@@ -101,9 +103,9 @@ class Individual_Grid(object):
                         genome[y][x] = new_genome[y][x]
                 else:
                     genome[y][x] = new_genome[y][x]
-                pass
+                # pass
         return genome
-        
+
 
     # Create zero or more children from self and other
     def generate_children(self, other):
@@ -140,7 +142,7 @@ class Individual_Grid(object):
 
         # do mutation; note we're returning a one-element tuple here
         new_genome = self.mutate(new_genome)
-        return (Individual_Grid(new_genome),)
+        return (Individual_Grid(new_genome))
 
     # Turn the genome into a level string (easy for this genome)
     def to_level(self):
@@ -392,7 +394,7 @@ class Individual_DE(object):
         return Individual_DE(g)
 
 
-Individual = Individual_Grid
+Individual = Individual_DE
 
 
 def generate_successors(population):
@@ -427,15 +429,17 @@ def generate_successors(population):
 
     elitist_parents = []
 
-    sort_tophalf = sorted(population, key=lambda fitness:fitness._fitness, reverse=False)
+    check = copy.deepcopy(population)
 
-    if (len(population) % 2) == 0:
-        for i in range(0, math.floor(len(sort_tophalf) / 2)):
+    sort_tophalf = sorted(check, key=lambda fitness:fitness._fitness, reverse=False)
+
+    if (len(check) % 2) == 0:
+        for i in range(0, int(len(check) / 2)):
             elitist_parents.append(sort_tophalf[i])
     else: # if odd number, append one more
-        for i in range(0, math.floor(len(sort_tophalf) / 2)):
+        for i in range(0, int(len(check) / 2)):
             elitist_parents.append(sort_tophalf[i])
-        elitist_parents.append(sort_tophalf[math.floor(len(sort_tophalf) / 2)])
+        elitist_parents.append(sort_tophalf[math.floor(len(check) / 2)])
 
     elitistP1 = elitist_parents[random.randint(0, len(elitist_parents)-1)]
     elitistP2 = elitist_parents[random.randint(0, len(elitist_parents)-1)]
@@ -443,48 +447,68 @@ def generate_successors(population):
         elitistP2 = elitist_parents[random.randint(0, len(elitist_parents)-1)]
     if len(elitistP1.genome) != 0 and len(elitistP2.genome) != 0:
         results.append(elitistP1.generate_children(elitistP2)[0])
+        results.append(elitistP2.generate_children(elitistP1)[0])
 
     # Tournament Selection
 
     # sets the size to be length of population - 1
     # initializes chosen list of parents
-    size = len(population) - 1
+    size_tournament = len(population) - 1
     tournament_parents = []
 
-    while (len(tournament_parents) != 2):
+    for i in range(0, size_tournament):
+        tournament_1 = random.choice(population)
+        tournament_2 = random.choice(population)
+        while tournament_1 == tournament_2:
+            tournament_2 = random.choice(population)
+        if tournament_1._fitness > tournament_2._fitness:
+            tournament_parents.append(tournament_1)
+        else:
+            tournament_parents.append(tournament_2)
 
-        chosen = None
-        counter = 0
-        tournament = []
-
-        # we select 30 random genomes to be in our tournament
-        while counter < 25:
-            rand_genome = random.randint(0, size)
-
-            # if the genome is not in the tournament, add it and increase the counter by 1
-            # if population[rand_genome] not in tournament and population[rand_genome] != RWS_parent:
-            if population[rand_genome] not in tournament:
-                tournament.append(population[rand_genome])
-                counter += 1
-
-        # compares all 30 genomes and finds the best one (based on highest fitness)
-        for parent in tournament:
-
-            # set the first one as the best
-            if chosen == None:
-                chosen = parent
-
-            # compares the current best to the current parent
-            elif parent.fitness() > chosen.fitness():
-                chosen = parent
-
-        if chosen not in tournament_parents:
-            tournament_parents.append(chosen)
-
+    # while (len(tournament_parents) != 2):
+    #
+    #     chosen = None
+    #     counter = 0
+    #     tournament = []
+    #
+    #     # we select 30 random genomes to be in our tournament
+    #     while counter < 25:
+    #         rand_genome = random.randint(0, size)
+    #
+    #         # if the genome is not in the tournament, add it and increase the counter by 1
+    #         # if population[rand_genome] not in tournament and population[rand_genome] != RWS_parent:
+    #         if population[rand_genome] not in tournament:
+    #             tournament.append(population[rand_genome])
+    #             counter += 1
+    #
+    #     # compares all 30 genomes and finds the best one (based on highest fitness)
+    #     for parent in tournament:
+    #
+    #         # set the first one as the best
+    #         if chosen == None:
+    #             chosen = parent
+    #
+    #         # compares the current best to the current parent
+    #         elif parent.fitness() > chosen.fitness():
+    #             chosen = parent
+    #
+    #     if chosen not in tournament_parents:
+    #         tournament_parents.append(chosen)
+    #
     if len(tournament_parents[0].genome) != 0 and len(tournament_parents[1].genome) != 0:
         results.append(tournament_parents[0].generate_children(tournament_parents[1])[0])
+        results.append(tournament_parents[1].generate_children(tournament_parents[0])[0])
+
+    # for i in range(0, len(tournament_parents)):
+    #     first = tournament_parents[i]
+    #     second = elitist_parents[i]
+    #     results.append(first.generate_children(second))
+    #     results.append(second.generate_children(first))
 
     # results.append(chosen.generate_children(RWS_parent)[0])
+
+    # print(results)
 
     return results
 
