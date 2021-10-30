@@ -83,9 +83,14 @@ class Individual_Grid(object):
             if genome[15][x - 1] == '-' and genome[15][x-2] == '-' and genome[15][x-3]:
                 genome[15][x] = 'X'
 
+        for y in range(14): # make sure the first column will not have other things
+            genome[y][0] = '-'
+
         for y in range(height-1):
             for x in range(left, right):
-                if random.randint(1, 100) < 33 and y > 1: # Don't change the top 2 layers
+                if new_genome[y][x] == 'E':
+                    genome[y][x] == '-'
+                if random.randint(1, 100) < 10 and y > 1: # Don't change the top 2 layers
                     # Wall
                     if new_genome[y][x] == 'X':
                         # Change if floating wall
@@ -105,10 +110,10 @@ class Individual_Grid(object):
                                 genome[y][x] = '?'
 
                     elif new_genome[y][x] == '-':
-                        if random.randint(1, 10) <= 3:
+                        if random.randint(1, 10) <= 1:
                             genome[y][x] = '?'
-                        # if random.randint(1, 10) >= 6:
-                        #     genome[y][x] = 'o'
+                        if random.randint(1, 10) >= 9:
+                            genome[y][x] = 'o'
 
                     else:
                         genome[y][x] = new_genome[y][x]
