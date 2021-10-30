@@ -69,16 +69,23 @@ class Individual_Grid(object):
         # STUDENT consider putting more constraints on this to prevent pipes in the air, etc
 
         # https://www.tutorialspoint.com/genetic_algorithms/genetic_algorithms_mutation.htm
-
         new_genome = copy.deepcopy(self.genome)
 
         left = 1
         right = width - 1
-        for y in range(height):
+
+        for x in range(left, right): # generate some holes
+            # knowing that 15 is floor in graph
+            if random.randint(1, 100) < 20 and genome[14][x] != 'T' and genome[14][x] != 'T':
+                genome[15][x] = '-'
+            else:
+                genome[15][x] = 'X'
+            if genome[15][x - 1] == '-' and genome[15][x-2] == '-' and genome[15][x-3]:
+                genome[15][x] = 'X'
+
+        for y in range(height-1):
             for x in range(left, right):
-                if x >= width - 5:
-                    pass
-                elif random.randint(1, 100) < 33 and y > 1:
+                if random.randint(1, 100) < 33 and y > 1: # Don't change the top 2 layers
                     # Wall
                     if new_genome[y][x] == 'X':
                         # Change if floating wall
@@ -91,7 +98,7 @@ class Individual_Grid(object):
                     #Pipe or top
                     elif new_genome[y][x] == '|' or new_genome[y][x] == 'T':
                         # Replace if floating
-                        if new_genome[y-1][x] != '|' and y != height and (new_genome[y+1][x] != '|' or new_genome[y+1][x] != 'T'):
+                        if new_genome[y-1][x] != '|' and y <= height-2 and (new_genome[y+1][x] != '|' or new_genome[y+1][x] != 'T'):
                             if random.randint(1, 10) <= 2:
                                 genome[y][x] = 'M'
                             else:
@@ -100,14 +107,18 @@ class Individual_Grid(object):
                     elif new_genome[y][x] == '-':
                         if random.randint(1, 10) <= 3:
                             genome[y][x] = '?'
-                        if random.randint(1, 10) >= 6:
-                            genome[y][x] = 'o'
+                        # if random.randint(1, 10) >= 6:
+                        #     genome[y][x] = 'o'
 
                     else:
                         genome[y][x] = new_genome[y][x]
                 else:
                     genome[y][x] = new_genome[y][x]
-                # pass
+                pass
+        # for y in range(height):
+        #     for x in range(left,right):
+
+
         return genome
 
 
@@ -117,35 +128,17 @@ class Individual_Grid(object):
         # https://www.tutorialspoint.com/genetic_algorithms/genetic_algorithms_crossover.htm
 
         new_genome = copy.deepcopy(self.genome)
-        new_genome_2 = copy.deepcopy(self.genome)
         # Leaving first and last columns alone...
         # do crossover with other
         left = 1
         right = width - 1
 
-        # split our level into 3 sections for multi crossover
-        section1 = random.randint(left, math.floor(right/2))
-        section2 = random.randint(section1, math.floor(3*right/4))
-        section3 = random.randint(section2, right)
-
         for y in range(height):
-            # section 1 to 2 and section 3 to right will be left the same
-
-            # sets the new genome to that of other in section left to 1
-            for x in range(left, section1):
-                # STUDENT Which one should you take?  Self, or other?  Why?
-                # STUDENT consider putting more constraints on this to prevent pipes in the air, etc
-                new_genome_2[y][x] = other.genome[y][x]
-
-            for x in range(section1, section2):
-                new_genome[y][x] = other.genome[y][x]
-
-            # sets the new genome to that of other in section 2 to 3
-            for x in range(section2, section3):
-                new_genome_2[y][x] = other.genome[y][x]
-
-            for x in range(section3, right):
-                new_genome[y][x] = other.genome[y][x]
+            for x in range(left, right):
+                if random.randint(1, 100) < 37: # when under 37, we add the self into it
+                    new_genome[y][x] = self.genome[y][x]
+                else: # else add other into it
+                    new_genome[y][x] = other.genome[y][x]
 
         # do mutation; note we're returning a one-element tuple here
         new_genome = self.mutate(new_genome)
