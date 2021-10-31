@@ -74,55 +74,73 @@ class Individual_Grid(object):
         left = 1
         right = width - 1
 
-        for x in range(left, right): # generate some holes
+        for x in range(left, right):   # generate some holes
             # knowing that 15 is floor in graph
-            if random.randint(1, 100) < 20 and genome[14][x] != 'T' and genome[14][x] != 'T':
+            if random.randint(1, 100) < 20:
                 genome[15][x] = '-'
             else:
                 genome[15][x] = 'X'
-            if genome[15][x - 1] == '-' and genome[15][x-2] == '-' and genome[15][x-3]:
+            if genome[15][x - 1] == '-' and genome[15][x-2] == '-':
                 genome[15][x] = 'X'
 
-        for y in range(14): # make sure the first column will not have other things
-            genome[y][0] = '-'
+        for y in range(height):   # remove all |, T and E from the map
+            for x in range(left, right):
+                if genome[y][x] == "|" or genome[y][x] == "T":
+                    genome[y][x] = "-"
+                if genome[y][x] == "E":
+                    genome[y][x] = "-"
 
         for y in range(height-1):
             for x in range(left, right):
-                if new_genome[y][x] == 'E':
-                    genome[y][x] == '-'
-                if random.randint(1, 100) < 10 and y > 1: # Don't change the top 2 layers
-                    # Wall
-                    if new_genome[y][x] == 'X':
-                        # Change if floating wall
-                        if new_genome[y-1][x] != 'X':
-                            if random.randint(1, 10) <= 4:
-                                genome[y][x] = 'B'
-                            else:
-                                genome[y][x] = '-'
-
-                    #Pipe or top
-                    elif new_genome[y][x] == '|' or new_genome[y][x] == 'T':
-                        # Replace if floating
-                        if new_genome[y-1][x] != '|' and y <= height-2 and (new_genome[y+1][x] != '|' or new_genome[y+1][x] != 'T'):
-                            if random.randint(1, 10) <= 2:
-                                genome[y][x] = 'M'
-                            else:
-                                genome[y][x] = '?'
-
-                    elif new_genome[y][x] == '-':
-                        if random.randint(1, 10) <= 1:
-                            genome[y][x] = '?'
-                        if random.randint(1, 10) >= 9:
-                            genome[y][x] = 'o'
-
+                if random.randint(1, 100) < 10:
+                    chosen = random.randint(1, 100)
+                    if 0 <= chosen < 3:   # 3%
+                        if y == 14 and genome[y-1][x] != "-":
+                            if genome[y][x-1] != "|" or genome[y][x-1] != "T":
+                                genome[y][x] = "E"
+                    elif 3 <= chosen < 10:   # 7%
+                        genome[y][x] = "o"
+                    elif 10 <= chosen < 20:   # 10%
+                        genome[y][x] = "M"
+                    elif 20 <= chosen < 30:   # 10%
+                        genome[y][x] = "?"
+                    elif 30 <= chosen < 40:   # 10%
+                        genome[y][x] = "B"
+                    elif 40 <= chosen < 60:   # 20%
+                        genome[y][x] = "X"
+                    elif 60 <= chosen < 63:   # 3%
+                        genome[y-2][x] = "T"
+                        genome[y-1][x] = "|"
+                        genome[y][x] = "X"
                     else:
-                        genome[y][x] = new_genome[y][x]
-                else:
-                    genome[y][x] = new_genome[y][x]
-                pass
-        # for y in range(height):
-        #     for x in range(left,right):
+                        genome[y][x] = "-"
 
+        for y in range(14):   # make sure the first column will not have other things
+            genome[y][0] = '-'
+
+        for x in range(left, right):
+            if genome[15][x] == "-" and genome[14][x] != "-" and genome[14][x] != "X":
+                genome[14][x] = "-"
+
+        for y in range(height-1):   # remove incorrect pipe format
+            for x in range(left + 1, right):
+                if genome[y][x] == "T" and (genome[y+1][x] != "|" or genome[y-1][x] != "-"):
+                    genome[y][x] = "-"
+
+        for y in (range(height)):   # change the final column back to origin
+            if y <= 6:
+                genome[y][right] = '-'
+            elif y == 7:
+                genome[y][right] = 'v'
+            elif y <= 13:
+                genome[y][right] = 'f'
+            else:
+                genome[y][right] = 'X'
+
+        for x in range(left, right):
+            genome[0][x] = "-"
+            genome[1][x] = "-"
+            genome[2][x] = "-"
 
         return genome
 
@@ -140,7 +158,7 @@ class Individual_Grid(object):
 
         for y in range(height):
             for x in range(left, right):
-                if random.randint(1, 100) < 37: # when under 37, we add the self into it
+                if random.randint(1, 100) < 30: # when under 30, we add the self into it
                     new_genome[y][x] = self.genome[y][x]
                 else: # else add other into it
                     new_genome[y][x] = other.genome[y][x]
@@ -407,31 +425,6 @@ def generate_successors(population):
     # STUDENT Design and implement this
     # Hint: Call generate_children() on some individuals and fill up results.
 
-    # Idea from https://www.tutorialspoint.com/genetic_algorithms/genetic_algorithms_parent_selection.htm
-    # Roulette Wheel Selection
-    # Calculate S = the sum of a finesses.
-    # Generate a random number between 0 and S.
-    # Starting from the top of the population, keep adding the finesses to the partial sum P, till P<S.
-    # The individual for which P exceeds S is the chosen individual.
-    # https://stackoverflow.com/questions/10324015/fitness-proportionate-selection-roulette-wheel-selection-in-python
-    # RWS_parent = None
-    # s = 0
-    #
-    # for fitness in population:
-    #     s += fitness._fitness
-    #
-    # print(s)
-    # random_num = random.uniform(0.0, s)
-    #
-    # P = 0
-    #
-    # for parents in population:
-    #     if P > random_num:
-    #         RWS_parent = parents
-    #         break
-    #     else:
-    #         P += parents._fitness
-
     # Elitist Selection
     # https://en.wikipedia.org/wiki/Selection_(genetic_algorithm)
     # http://www.wardsystems.com/manuals/genehunter/elitistselection.htm
@@ -453,14 +446,6 @@ def generate_successors(population):
             elitist_parents.append(sort[i])
         elitist_parents.append(sort[math.floor(len(check) / 2)])
 
-    # elitistP1 = elitist_parents[random.randint(0, len(elitist_parents)-1)]
-    # elitistP2 = elitist_parents[random.randint(0, len(elitist_parents)-1)]
-    # while elitistP1 == elitistP2:
-    #     elitistP2 = elitist_parents[random.randint(0, len(elitist_parents)-1)]
-    # if len(elitistP1.genome) != 0 and len(elitistP2.genome) != 0:
-    #     results.append(elitistP1.generate_children(elitistP2))
-    #     results.append(elitistP2.generate_children(elitistP1))
-
     # Tournament Selection
 
     # sets the size to be length of population - 1
@@ -478,40 +463,6 @@ def generate_successors(population):
         else:
             tournament_parents.append(tournament_2)
 
-    # while (len(tournament_parents) != 2):
-    #
-    #     chosen = None
-    #     counter = 0
-    #     tournament = []
-    #
-    #     # we select 30 random genomes to be in our tournament
-    #     while counter < 25:
-    #         rand_genome = random.randint(0, size)
-    #
-    #         # if the genome is not in the tournament, add it and increase the counter by 1
-    #         # if population[rand_genome] not in tournament and population[rand_genome] != RWS_parent:
-    #         if population[rand_genome] not in tournament:
-    #             tournament.append(population[rand_genome])
-    #             counter += 1
-    #
-    #     # compares all 30 genomes and finds the best one (based on highest fitness)
-    #     for parent in tournament:
-    #
-    #         # set the first one as the best
-    #         if chosen == None:
-    #             chosen = parent
-    #
-    #         # compares the current best to the current parent
-    #         elif parent.fitness() > chosen.fitness():
-    #             chosen = parent
-    #
-    #     if chosen not in tournament_parents:
-    #         tournament_parents.append(chosen)
-    #
-    # if len(tournament_parents[0].genome) != 0 and len(tournament_parents[1].genome) != 0:
-    #     results.append(tournament_parents[0].generate_children(tournament_parents[1]))
-    #     results.append(tournament_parents[1].generate_children(tournament_parents[0]))
-
     if len(tournament_parents) < len(elitist_parents):
         size = len(tournament_parents)
     else:
@@ -522,10 +473,6 @@ def generate_successors(population):
         second = elitist_parents[i]
         results.append(first.generate_children(second))
         results.append(second.generate_children(first))
-
-    # results.append(chosen.generate_children(RWS_parent)[0])
-
-    # print(results)
 
     return results
 
