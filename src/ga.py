@@ -92,15 +92,12 @@ class Individual_Grid(object):
                 if (genome[y][x] == "M" or genome[y][x] == "?") and (genome[y+1][x] != "-" or genome[y+1][x] != "o"):
                     genome[y][x] = "-"
 
+        # randomly choose how the level looks like
         for y in range(height):
             for x in range(left, right):
-                if random.randint(1, 100) < 10 and y < 15:
+                if random.randint(1, 100) < 10 and y < 15: # don't touch level 1
                     chosen = random.randint(1, 100)
-                    if 0 <= chosen < 3:   # 3%
-                        if y == 14 and genome[y-1][x] != "-":
-                            if genome[y][x-1] != "|" or genome[y][x-1] != "T":
-                                genome[y][x] = "E"
-                    elif 3 <= chosen < 10:   # 7%
+                    if 0 <= chosen < 10:   # 10% I like coins
                         genome[y][x] = "o"
                     elif 10 <= chosen < 25:   # 15%
                         genome[y][x] = "M"
@@ -126,25 +123,34 @@ class Individual_Grid(object):
 
         for y in range(14):
             for x in range(left, right):
+                # if something stop us get the M or ?, remove that M or ?
                 if (genome[y][x] == "M" or genome[y][x] == "?") and (genome[y-1][x] != "-" or genome[y+1][x] != "-" or genome[y+1][x-1] != "-"):
                     genome[y][x] = "-"
-                if x < right:
+                if x < right:   # make sure we have a path which can pass though
                     if genome[y][x] != "T" or genome[y][x] != "|":
                         if genome[y-1][x] != "|":
                             if genome[y-1][x-1] != "-":
                                 if genome[y-1][x-1] != "o":
                                     genome[y][x] = "-"
-                if y > 3:
+                if y > 3:   # make pipe right format if remove before
                     if genome[y][x] == "|" and genome[y-1][x] != "T":
                         genome[y-1][x] = "T"
 
-        for x in range(left, right):
+        for x in range(left, right):    # make sure there will not M $ ? blocks at level 1
+                                        # also no other kind of stuff cover the hole
             if genome[15][x] == "-" and genome[14][x] != "-" and genome[14][x] != "X":
                 genome[14][x] = "-"
             if genome[14][x] == "M" or genome[14][x] == "?":
                 genome[14][x] = "-"
 
-        for y in range(height):   # change the final column back to origin
+        for y in range(14): 
+            for x in range(left, right):
+                E_rate = random.randint(0, 100)
+                if E_rate < 3:  # 3% make an enemy
+                    if genome[y+1][x] != "-" and genome[y+1][x] != "o" and genome[y][x] == "-":
+                        genome[y][x] = "E"
+
+        for y in range(height):   # reset start & end columns
             if y < 3:
                 for x in range(left, right):
                     genome[y][x] = "-"
@@ -175,9 +181,9 @@ class Individual_Grid(object):
 
         for y in range(height):
             for x in range(left, right):
-                if random.randint(1, 100) < 30: # when under 30, we add the self into it
+                if random.randint(1, 100) < 30:   # when under 30, we add the self into it
                     new_genome[y][x] = self.genome[y][x]
-                else: # else add other into it
+                else:   # else add other into it
                     new_genome[y][x] = other.genome[y][x]
 
         # do mutation; note we're returning a one-element tuple here
@@ -489,6 +495,7 @@ def generate_successors(population):
         else:
             tournament_parents.append(tournament_2)
 
+    # make sure that we will always use the smaller size
     if len(tournament_parents) < len(elitist_parents):
         size = len(tournament_parents)
     else:
