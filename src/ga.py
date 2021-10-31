@@ -261,6 +261,15 @@ class Individual_DE(object):
         )
         penalties = 0
         # STUDENT For example, too many stairs are unaesthetic.  Let's penalize that
+        # Don't care about block and qblock
+        if len(list(filter(lambda de: de[1] == "3_coin", self.genome))) > 8:
+            penalties += 2   # want coin
+        if len(list(filter(lambda de: de[1] == "7_pipe", self.genome))) > 5:
+            penalties -= 2   # I personally don't like pipe
+        if len(list(filter(lambda de: de[1] == "1_platform", self.genome))) > 6:
+            penalties -= 1   # I want to see clear sky
+        if len(list(filter(lambda de: de[1] == "2_enemy", self.genome))) > 5:
+            penalties -= 3   # I hate enemies
         if len(list(filter(lambda de: de[1] == "6_stairs", self.genome))) > 5:
             penalties -= 2
         # STUDENT If you go for the FI-2POP extra credit, you can put constraint calculation in here too and cache it in a new entry in __slots__.
@@ -458,7 +467,7 @@ def generate_successors(population):
     if (len(check) % 2) == 0:
         for i in range(0, int(len(check) / 2)):
             elitist_parents.append(sort[i])
-    else: # if odd number, append one more
+    else:   # if odd number, append one more
         for i in range(0, int(len(check) / 2)):
             elitist_parents.append(sort[i])
         elitist_parents.append(sort[math.floor(len(check) / 2)])
