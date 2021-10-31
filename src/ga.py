@@ -89,10 +89,12 @@ class Individual_Grid(object):
                     genome[y][x] = "-"
                 if genome[y][x] == "E":
                     genome[y][x] = "-"
+                if (genome[y][x] == "M" or genome[y][x] == "?") and (genome[y+1][x] != "-" or genome[y+1][x] != "o"):
+                    genome[y][x] = "-"
 
-        for y in range(height-1):
+        for y in range(height):
             for x in range(left, right):
-                if random.randint(1, 100) < 10:
+                if random.randint(1, 100) < 10 and y < 15:
                     chosen = random.randint(1, 100)
                     if 0 <= chosen < 3:   # 3%
                         if y == 14 and genome[y-1][x] != "-":
@@ -100,34 +102,54 @@ class Individual_Grid(object):
                                 genome[y][x] = "E"
                     elif 3 <= chosen < 10:   # 7%
                         genome[y][x] = "o"
-                    elif 10 <= chosen < 20:   # 10%
+                    elif 10 <= chosen < 25:   # 15%
                         genome[y][x] = "M"
-                    elif 20 <= chosen < 30:   # 10%
+                    elif 25 <= chosen < 40:   # 15%
                         genome[y][x] = "?"
-                    elif 30 <= chosen < 40:   # 10%
+                    elif 40 <= chosen < 45:   # 5%
                         genome[y][x] = "B"
-                    elif 40 <= chosen < 60:   # 20%
+                    elif 45 <= chosen < 60:   # 15%
                         genome[y][x] = "X"
-                    elif 60 <= chosen < 63:   # 3%
+                        if random.randint(1, 100) < 2 and x < right-1:
+                            genome[y][x+1] = "X"
+                    elif 60 <= chosen < 63 and y >= 10:   # 3%
                         genome[y-2][x] = "T"
                         genome[y-1][x] = "|"
                         genome[y][x] = "X"
                     else:
                         genome[y][x] = "-"
 
-        for y in range(14):   # make sure the first column will not have other things
-            genome[y][0] = '-'
+        for y in range(height):   # remove incorrect pipe format
+            for x in range(left, right):
+                if genome[y][x] == "T" and (genome[y+1][x] != "|" or genome[y-1][x] != "-"):
+                    genome[y][x] = "-"
+
+        for y in range(14):
+            for x in range(left, right):
+                if (genome[y][x] == "M" or genome[y][x] == "?") and (genome[y-1][x] != "-" or genome[y+1][x] != "-" or genome[y+1][x-1] != "-"):
+                    genome[y][x] = "-"
+                if x < right:
+                    if genome[y][x] != "T" or genome[y][x] != "|":
+                        if genome[y-1][x] != "|":
+                            if genome[y-1][x-1] != "-":
+                                if genome[y-1][x-1] != "o":
+                                    genome[y][x] = "-"
+                if y > 3:
+                    if genome[y][x] == "|" and genome[y-1][x] != "T":
+                        genome[y-1][x] = "T"
 
         for x in range(left, right):
             if genome[15][x] == "-" and genome[14][x] != "-" and genome[14][x] != "X":
                 genome[14][x] = "-"
+            if genome[14][x] == "M" or genome[14][x] == "?":
+                genome[14][x] = "-"
 
-        for y in range(height-1):   # remove incorrect pipe format
-            for x in range(left + 1, right):
-                if genome[y][x] == "T" and (genome[y+1][x] != "|" or genome[y-1][x] != "-"):
+        for y in range(height):   # change the final column back to origin
+            if y < 3:
+                for x in range(left, right):
                     genome[y][x] = "-"
-
-        for y in (range(height)):   # change the final column back to origin
+            if y < 15:
+                genome[y][0] = '-'
             if y <= 6:
                 genome[y][right] = '-'
             elif y == 7:
@@ -136,11 +158,6 @@ class Individual_Grid(object):
                 genome[y][right] = 'f'
             else:
                 genome[y][right] = 'X'
-
-        for x in range(left, right):
-            genome[0][x] = "-"
-            genome[1][x] = "-"
-            genome[2][x] = "-"
 
         return genome
 
