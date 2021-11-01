@@ -74,9 +74,9 @@ class Individual_Grid(object):
         left = 1
         right = width - 1
 
-        for x in range(left, right):   # generate some holes
+        for x in range(left, 128):   # generate some holes
             # knowing that 15 is floor in graph
-            if random.randint(1, 100) < 20:
+            if random.randint(1, 100) < 10:
                 genome[15][x] = '-'
             else:
                 genome[15][x] = 'X'
@@ -89,13 +89,11 @@ class Individual_Grid(object):
                     genome[y][x] = "-"
                 if genome[y][x] == "E":
                     genome[y][x] = "-"
-                if (genome[y][x] == "M" or genome[y][x] == "?") and (genome[y+1][x] != "-" or genome[y+1][x] != "o"):
-                    genome[y][x] = "-"
 
         # randomly choose how the level looks like
         for y in range(height):
             for x in range(left, right):
-                if random.randint(1, 100) < 10 and y < 15: # don't touch level 1
+                if random.randint(1, 100) < 10 and y < 14 and x < right: # don't touch level 1
                     chosen = random.randint(1, 100)
                     if 0 <= chosen < 10:   # 10% I like coins
                         genome[y][x] = "o"
@@ -113,6 +111,7 @@ class Individual_Grid(object):
                         genome[y-2][x] = "T"
                         genome[y-1][x] = "|"
                         genome[y][x] = "X"
+                        genome[y][x+1] = "X"
                     else:
                         genome[y][x] = "-"
 
@@ -154,8 +153,6 @@ class Individual_Grid(object):
             if y < 3:
                 for x in range(left, right):
                     genome[y][x] = "-"
-            if y < 15:
-                genome[y][0] = '-'
             if y <= 6:
                 genome[y][right] = '-'
             elif y == 7:
@@ -164,6 +161,9 @@ class Individual_Grid(object):
                 genome[y][right] = 'f'
             else:
                 genome[y][right] = 'X'
+
+        for y in range(14):
+            genome[y][0] = "-"
 
         return genome
 
@@ -215,7 +215,7 @@ class Individual_Grid(object):
         g = [random.choices(options, k=width) for row in range(height)]
         g[15][:] = ["X"] * width
         g[14][0] = "m"
-        g[7][-1] = "v"
+        g[7][-7] = "v"
         g[8:14][-1] = ["f"] * 6
         g[14:16][-1] = ["X", "X"]
         return cls(g)
