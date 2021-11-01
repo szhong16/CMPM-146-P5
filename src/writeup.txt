@@ -1,3 +1,7 @@
+Team: Sijia Zhong and Justin Quan
+** We plan to participate in the competition **
+
+
 - What you changed from the template and why, especially related to your selection strategies,
 fitness functions, crossover and mutation operators, etc.
 
@@ -7,7 +11,9 @@ fitness functions, crossover and mutation operators, etc.
 – Something about each of your two favorite levels: Why do you like them? How many generations
 did it take and how many seconds to generate these levels?
 
-** still need to generate levels **
+For our favorite level, we chose the one that we submitted in particular because it had an unsual path since if you were to go straight, you will be blocked off and the proper path would have you jump up onto blocks and maneuver around it. This made for a chaotic looking level, with an interesting solution. This was on generation 6 and our time was about 29 seconds.
+
+Our second favoirite level, was chosen because while the path to the goal was very easy to achieve (just walk through the level with very few obstacles in the player's way), there was a lot of areas to explore in the air. This gave players a nice alternative if they felt like exploring the large amount of blocks and enemies in the sky. This level was designed on generation 6 with a time of about 30 seconds.
 
 
 Individual DE functions to explain
