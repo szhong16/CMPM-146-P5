@@ -80,8 +80,6 @@ class Individual_Grid(object):
                 genome[15][x] = '-'
             else:
                 genome[15][x] = 'X'
-            if genome[15][x - 1] == '-' and genome[15][x-2] == '-':
-                genome[15][x] = 'X'
 
         for y in range(height):   # remove all |, T and E from the map
             for x in range(left, right):
@@ -93,7 +91,7 @@ class Individual_Grid(object):
         # randomly choose how the level looks like
         for y in range(height):
             for x in range(left, right):
-                if random.randint(1, 100) < 10 and y < 14 and x < right: # don't touch level 1
+                if random.randint(1, 100) < 10 and y <= 14: # don't touch level 1
                     chosen = random.randint(1, 100)
                     if 0 <= chosen < 10:   # 10% I like coins
                         genome[y][x] = "o"
@@ -107,40 +105,12 @@ class Individual_Grid(object):
                         genome[y][x] = "X"
                         if random.randint(1, 100) < 2 and x < right-1:
                             genome[y][x+1] = "X"
-                    elif 60 <= chosen < 63 and y >= 10:   # 3%
+                    elif 60 <= chosen < 63 and y == 14:   # 3%
                         genome[y-2][x] = "T"
                         genome[y-1][x] = "|"
                         genome[y][x] = "X"
-                        genome[y][x+1] = "X"
                     else:
                         genome[y][x] = "-"
-
-        for y in range(height):   # remove incorrect pipe format
-            for x in range(left, right):
-                if genome[y][x] == "T" and (genome[y+1][x] != "|" or genome[y-1][x] != "-"):
-                    genome[y][x] = "-"
-
-        for y in range(14):
-            for x in range(left, right):
-                # if something stop us get the M or ?, remove that M or ?
-                if (genome[y][x] == "M" or genome[y][x] == "?") and (genome[y-1][x] != "-" or genome[y+1][x] != "-" or genome[y+1][x-1] != "-"):
-                    genome[y][x] = "-"
-                if x < right:   # make sure we have a path which can pass though
-                    if genome[y][x] != "T" or genome[y][x] != "|":
-                        if genome[y-1][x] != "|":
-                            if genome[y-1][x-1] != "-":
-                                if genome[y-1][x-1] != "o":
-                                    genome[y][x] = "-"
-                if y > 3:   # make pipe right format if remove before
-                    if genome[y][x] == "|" and genome[y-1][x] != "T":
-                        genome[y-1][x] = "T"
-
-        for x in range(left, right):    # make sure there will not M $ ? blocks at level 1
-                                        # also no other kind of stuff cover the hole
-            if genome[15][x] == "-" and genome[14][x] != "-" and genome[14][x] != "X":
-                genome[14][x] = "-"
-            if genome[14][x] == "M" or genome[14][x] == "?":
-                genome[14][x] = "-"
 
         for y in range(14):
             for x in range(left, right):
@@ -148,6 +118,36 @@ class Individual_Grid(object):
                 if E_rate < 3:  # 3% make an enemy
                     if genome[y+1][x] != "-" and genome[y+1][x] != "o" and genome[y][x] == "-":
                         genome[y][x] = "E"
+
+        for y in range(14):
+            for x in range(left, right):
+                # if something stop us get the M or ?, remove that M or ?
+                if (genome[y][x] == "M" or genome[y][x] == "?") and (genome[y-1][x] != "-" or genome[y+1][x] != "-" or genome[y+1][x-1] != "-"):
+                    genome[y][x] = "-"
+                # if x < right:   # make sure we have a path which can pass though
+                #     if genome[y-1][x] != "|":
+                #         if genome[y-1][x-1] != "-":
+                #             if genome[y-1][x-1] != "o":
+                #                 genome[y][x] = "-"
+                if y > 3:
+                    if genome[y][x] != "-" and genome[y-1][x] != "-" and genome[y-2][x] != "-":
+                        genome[y-1][x] = "-"
+                        genome[y-2][x] = "-"
+                if y > 3:   # make pipe right format if remove before
+                    if genome[y][x] == "|" and genome[y-1][x] != "T":
+                        genome[y-1][x] = "T"
+
+        for y in range(height):   # remove incorrect pipe format
+            for x in range(left, right):
+                if genome[y][x] == "T" and (genome[y+1][x] != "|" or genome[y-1][x] != "-"):
+                    genome[y][x] = "-"
+
+        for x in range(left, right):    # make sure there will not M $ ? blocks at level 1&2
+                                        # also no other kind of stuff cover the hole
+            if genome[15][x] == "-" and genome[14][x] != "-" and genome[14][x] != "X":
+                genome[14][x] = "-"
+            if genome[14][x] == "M" or genome[14][x] == "?":
+                genome[14][x] = "-"
 
         for y in range(height):   # reset start & end columns
             if y < 3:
@@ -201,7 +201,7 @@ class Individual_Grid(object):
         g = [["-" for col in range(width)] for row in range(height)]
         g[15][:] = ["X"] * width
         g[14][0] = "m"
-        g[7][-1] = "v"
+        g[7][-5] = "v"
         for col in range(8, 14):
             g[col][-1] = "f"
         for col in range(14, 16):
