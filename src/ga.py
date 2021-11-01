@@ -143,7 +143,7 @@ class Individual_Grid(object):
             if genome[14][x] == "M" or genome[14][x] == "?":
                 genome[14][x] = "-"
 
-        for y in range(14): 
+        for y in range(14):
             for x in range(left, right):
                 E_rate = random.randint(0, 100)
                 if E_rate < 3:  # 3% make an enemy
@@ -429,7 +429,20 @@ class Individual_DE(object):
     @classmethod
     def empty_individual(_cls):
         # STUDENT Maybe enhance this
-        g = []
+        #g = []
+        elt_count = random.randint(8, 64)
+        g = [random.choice([(random.randint(1, width - 2), "0_hole", random.randint(1, 2)),
+                            (random.randint(1, width - 2), "1_platform", random.randint(1, 4), random.randint(0, height - 1), random.choice(["?", "X", "B"])),
+        ]) for i in range(elt_count)]
+        elt_count = random.randint(64, 128)
+        g += [random.choice([
+            (random.randint(1, width - 2), "2_enemy"),
+            (random.randint(1, width - 2), "3_coin", random.randint(0, height - 1)),
+            (random.randint(1, width - 2), "4_block", random.randint(0, height - 1), random.choice([True, False])),
+            (random.randint(1, width - 2), "5_qblock", random.randint(0, height - 1), random.choice([True, False])),
+            (random.randint(1, width - 2), "6_stairs", random.randint(1, height - 3), random.choice([-1, 1])),
+            (random.randint(1, width - 2), "7_pipe", random.randint(2, height - 4))
+        ]) for i in range(elt_count)]
         return Individual_DE(g)
 
     @classmethod
@@ -504,8 +517,12 @@ def generate_successors(population):
     for i in range(0, size):
         first = tournament_parents[i]
         second = elitist_parents[i]
-        results.append(first.generate_children(second))
-        results.append(second.generate_children(first))
+        if Individual == Individual_DE:
+            results.append(first.generate_children(second)[0])
+            results.append(second.generate_children(first)[1])
+        else:
+            results.append(first.generate_children(second))
+            results.append(second.generate_children(first))
 
     return results
 
