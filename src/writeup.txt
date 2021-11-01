@@ -5,27 +5,50 @@ Team: Sijia Zhong and Justin Quan
 - What you changed from the template and why, especially related to your selection strategies,
 fitness functions, crossover and mutation operators, etc.
 
-	For our selection strategies, we chose roulette and tournament selection because they seemed simple to implement, while effective enough to create very unique and interesting children. We also made changes to how we generate children through the process of determining how genes were distibuted. For our purposes, we split the map up into different sections, with each section representing one of the selected parents. These parents were chosen from our selection strategies and their children generated will then be mutated. In the mutation function, we opted for constraints on how much we could change and if a change was viable. For example, we made sure that there were no walls floating randomly in the air and that pipes were produced correctly, with an entrance and at least one pipe connected.
+	For our selection strategies, we chose roulette and tournament selection because they seemed simple to implement, 
+    while effective enough to create very unique and interesting children. 
+    We also made changes to how we generate children through the process of determining how genes were distibuted. 
+    For our purposes, we do the crossover if the random rate > 30. Or we just copy itself back.  
+    In the mutation function, we opted for constraints on how much we could change and if a change was viable. 
+    For example, we made sure that there were no walls floating randomly in the air and that pipes were produced correctly, 
+    with an entrance and at least one pipe connected.
+    Also, we make sure that nothing will be on the highest layer and the begin and end column is right perform. 
 
 
 – Something about each of your two favorite levels: Why do you like them? How many generations
 did it take and how many seconds to generate these levels?
 
-For our favorite level, we chose the one that we submitted in particular because it had an unsual path since if you were to go straight, you will be blocked off and the proper path would have you jump up onto blocks and maneuver around it. This made for a chaotic looking level, with an interesting solution. This was on generation 6 and our time was about 29 seconds.
+    For our favorite level, we chose the one that we submitted in particular 
+    because it had an unsual path since if you were to go straight, 
+    you will be blocked off and the proper path would have you jump up onto blocks and maneuver around it. 
+    And also you need to think about how to use the mushroom. Sometimes bigger is not better. 
+    This made for a chaotic looking level, with an interesting solution. 
+    This was on generation 6 and Net time: 172.11871910095215.
 
-Our second favoirite level, was chosen because while the path to the goal was very easy to achieve (just walk through the level with very few obstacles in the player's way), there was a lot of areas to explore in the air. This gave players a nice alternative if they felt like exploring the large amount of blocks and enemies in the sky. This level was designed on generation 6 with a time of about 30 seconds.
+    Our second favoirite level, was chosen because while the path to the goal it is hard on the front,
+    and you will also be blocked off at the end if you chose not to jump. 
+    There are a lot of ? blocks you can touch and check if there is the things you want. 
+    If you kill all the enemies when you first see them, you might be stuck and cannot go back. 
+    This level was designed on generation 5 with Net time: 172.11871910095215.
 
 
 Individual DE functions to explain
 - mutate: How does this work?  Explain it in your writeup.
 
-	Mutate first randomly selects which genome it will mutate. The mutations made will be based on the genome's DE_type. Such changes include: if the chunk is 4_block, 5_qblocks, 3_coin, etc. For most of these types, there will be changes based on a random choice variable and mutate the genome's type, x, and y based on the number the choice is. The one exception is if the type is 2_enemies, which will make not changes to that genome.
+	Mutate first randomly selects which genome it will mutate. 
+    The mutations made will be based on the genome's DE_type. 
+    Such changes include: if the chunk is 4_block, 5_qblocks, 3_coin, etc. 
+    For most of these types, there will be changes based on a random choice variable and mutate the genome's type, x, and y based on the number the choice is. 
+    The one exception is if the type is 2_enemies, which will make not changes to that genome.
 
 
 - generate_children: How does this work?  Explain it in your writeup.
 
 	In Individual DE, generating children will result is two sets of children generated, ga and gb.
 
-	This is done by first randomly selecting at which index are we going to separate both self and other genome. Once this is done, we take the second part of self with the first part of other and combine them together to create ga. We will then combine the first part of self with the second part of other and will become gb.
+	This is done by first randomly selecting at which index are we going to separate both self and other genome. 
+    Once this is done, we take the second part of self with the first part of other and combine them together to create ga. 
+    We will then combine the first part of self with the second part of other and will become gb.
 
-	We will then send both ga and gb to the mutate function, which will return the mutated children that we will use for the next generation.
+	We will then send both ga and gb to the mutate function, 
+    which will return the mutated children that we will use for the next generation.
