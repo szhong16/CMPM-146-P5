@@ -114,13 +114,6 @@ class Individual_Grid(object):
 
         for y in range(14):
             for x in range(left, right):
-                E_rate = random.randint(0, 100)
-                if E_rate < 3:  # 3% make an enemy
-                    if genome[y+1][x] != "-" and genome[y+1][x] != "o" and genome[y][x] == "-":
-                        genome[y][x] = "E"
-
-        for y in range(14):
-            for x in range(left, right):
                 # if something stop us get the M or ?, remove that M or ?
                 if (genome[y][x] == "M" or genome[y][x] == "?") and (genome[y-1][x] != "-" or genome[y+1][x] != "-" or genome[y+1][x-1] != "-"):
                     genome[y][x] = "-"
@@ -148,6 +141,13 @@ class Individual_Grid(object):
                 genome[14][x] = "-"
             if genome[14][x] == "M" or genome[14][x] == "?":
                 genome[14][x] = "-"
+
+        for y in range(14):
+            for x in range(left, right):
+                E_rate = random.randint(0, 100)
+                if E_rate < 1:  # 1% make an enemy
+                    if genome[y+1][x] != "-" and genome[y+1][x] != "o" and genome[y][x] == "-":
+                        genome[y][x] = "E"
 
         for y in range(height):   # reset start & end columns
             if y < 3:
@@ -201,7 +201,7 @@ class Individual_Grid(object):
         g = [["-" for col in range(width)] for row in range(height)]
         g[15][:] = ["X"] * width
         g[14][0] = "m"
-        g[7][-5] = "v"
+        g[7][-7] = "v"
         for col in range(8, 14):
             g[col][-1] = "f"
         for col in range(14, 16):
@@ -467,6 +467,7 @@ Individual = Individual_Grid
 
 def generate_successors(population):
     results = []
+
     # STUDENT Design and implement this
     # Hint: Call generate_children() on some individuals and fill up results.
 
